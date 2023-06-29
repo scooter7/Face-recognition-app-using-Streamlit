@@ -2,7 +2,7 @@
 import streamlit as st
 import cv2
 import face_recognition as frg
-import yaml 
+import yaml
 from utils import recognize, build_dataset
 # Path: code\app.py
 
@@ -45,7 +45,7 @@ if choice == "Picture":
             st.image(image)
     else: 
         st.info("Please upload an image")
-    
+
 elif choice == "Webcam":
     st.title("Face Recognition App")
     st.write(WEBCAM_PROMPT)
@@ -54,7 +54,7 @@ elif choice == "Webcam":
     cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     FRAME_WINDOW = st.image([])
-    
+
     while True:
         ret, frame = cam.read()
         if not ret:
@@ -64,15 +64,14 @@ elif choice == "Webcam":
         image, name, id = recognize(frame,TOLERANCE)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         #Display name and ID of the person
-        
+
         name_container.info(f"Name: {name}")
         id_container.success(f"ID: {id}")
         FRAME_WINDOW.image(image)
 
 with st.sidebar.form(key='my_form'):
     st.title("Developer Section")
-    submit_button = st.form_submit_button(label='REBUILD DATASET')
-    if submit_button:
+    if submit_button := st.form_submit_button(label='REBUILD DATASET'):
         with st.spinner("Rebuilding dataset..."):
             build_dataset()
         st.success("Dataset has been reset")
