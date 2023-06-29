@@ -38,9 +38,7 @@ def recognize(image,TOLERANCE):
     return image, name, id
 def isFaceExists(image): 
     face_location = frg.face_locations(image)
-    if len(face_location) == 0:
-        return False
-    return True
+    return len(face_location) != 0
 def submitNew(name, id, image, old_idx=None):
     database = get_databse()
     #Read image 
@@ -55,13 +53,12 @@ def submitNew(name, id, image, old_idx=None):
     #Append to database
     #check if id already exists
     existing_id = [database[i]['id'] for i in database.keys()]
-    #Update mode 
+    #Update mode
     if old_idx is not None: 
         new_idx = old_idx
-    #Add mode
-    else: 
-        if id in existing_id:
-            return 0
+    elif id in existing_id:
+        return 0
+    else:
         new_idx = len(database)
     image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
     database[new_idx] = {'image':image,
@@ -72,13 +69,15 @@ def submitNew(name, id, image, old_idx=None):
         pkl.dump(database,f)
     return True
 def get_info_from_id(id): 
-    database = get_databse() 
-    for idx, person in database.items(): 
-        if person['id'] == id: 
-            name = person['name']
-            image = person['image']
-            return name, image, idx       
-    return None, None, None
+    database = get_databse()
+    return next(
+        (
+            (person['name'], person['image'], idx)
+            for idx, person in database.items()
+            if person['id'] == id
+        ),
+        (None, None, None),
+    )
 def deleteOne(id):
     database = get_databse()
     id = str(id)
